@@ -1,0 +1,14 @@
+ICONES DOS PROGRAMAS
+Cada programa usa o arquivo Icons\<nome>.png (de preferencia 256x256, fundo transparente).
+Sem o arquivo, o cartao mostra a sigla (Ps, Ae...).
+
+Nomes esperados:
+  adobe-photoshop.png            adobe-after-effects.png     adobe-premiere.png
+  davinci-resolve.png            adobe-illustrator.png       blender.png
+  autodesk-maya.png              zbrush.png                  adobe-substance-3d-painter.png
+
+Programas que voce cadastrar usam o nome em minusculas com hifens
+(ex.: "Cinema 4D" -> cinema-4d.png).
+
+Para pegar os icones dos programas instalados neste PC automaticamente, rode ExtrairIcones.bat
+na pasta do projeto. Depois rode o Compilar.bat.

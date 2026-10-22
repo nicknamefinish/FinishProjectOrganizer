@@ -1,0 +1,4 @@
+FONTE OUTFIT (licenca SIL OFL - livre, inclusive para uso comercial e distribuicao)
+O Compilar.bat baixa a fonte automaticamente para esta pasta e ela e embutida no .exe.
+Quem usa o programa final NAO precisa instalar nada.
+Para usar outra fonte, coloque os .ttf aqui e troque o nome em App.xaml (recurso UiFont, trecho #Outfit).
