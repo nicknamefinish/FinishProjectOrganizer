@@ -1,0 +1,44 @@
+FINISH - Project Organizer (versao janela / WPF)
+================================================
+
+COMO GERAR (voce, uma unica vez)
+Dê dois cliques em Compilar.bat. Ele:
+  - baixa a fonte Outfit e extrai os icones (se ainda nao estiverem na pasta);
+  - compila o programa (dist\FinishProjectOrganizer.exe);
+  - cria o INSTALADOR: installer\Setup_FinishProjectOrganizer.exe
+    (precisa do Inno Setup, gratuito; o proprio Compilar.bat oferece instalar pelo winget).
+
+O QUE ENVIAR PARA OS USUARIOS
+Somente o arquivo installer\Setup_FinishProjectOrganizer.exe.
+O usuario executa, clica em Avancar, e o programa fica instalado com atalho na Area de
+Trabalho e no Menu Iniciar. Depois disso pode apagar o Setup e qualquer pasta baixada.
+Para desinstalar: Configuracoes do Windows > Aplicativos.
+
+COLOCAR ONLINE
+Veja o ONLINE.txt: pagina de download no GitHub Pages + atualizacao automatica pelo GitHub Releases.
+
+SUAS CONFIGURACOES
+%LOCALAPPDATA%\FinishProjectOrganizer\config.json (nao e apagado ao atualizar o programa).
+
+MENU INICIAL
+Depois da tela de boas-vindas aparece o menu, com a sua foto e o seu nome no canto (clique para editar):
+"Novo projeto" (lista de programas), "Personalizar", "Meus projetos" (abre a pasta no Explorer) e
+"Trocar pasta". Esc volta uma tela.
+Programas que voce cadastrou ganham um "x" no cartao para remover (as pastas no disco nao sao apagadas).
+
+PERSONALIZAR
+Menu > Personalizar:
+  - Nome: escreva como quer ser chamado. Em branco, usa o nome da conta do Windows.
+  - Foto: por padrao usa a foto da conta do Windows. Clique na foto (ou em "Trocar foto...") para escolher outra;
+    "Usar foto do Windows" volta ao padrao. A foto escolhida e recortada em quadrado e guardada em
+    %LOCALAPPDATA%\FinishProjectOrganizer\avatar.png.
+  - Cor da interface: 10 cores prontas ou qualquer cor em #RRGGBB. O fundo e um gradiente escuro discreto
+    que ganha um leve tom da cor escolhida (cores muito escuras sao clareadas automaticamente para ficarem legiveis).
+  - Sons: liga/desliga e volume Baixo / Medio / Alto. O padrao e BAIXO.
+Tudo e salvo na hora no config.json (que tem copia de seguranca, config.json.bak).
+
+SONS
+Gerados por codigo (Sounds.cs), sem arquivos de audio. Tambem da para ligar/desligar em Menu > "Sons".
+
+LOG DE ERROS
+%LOCALAPPDATA%\FinishProjectOrganizer\log.txt (util para suporte).

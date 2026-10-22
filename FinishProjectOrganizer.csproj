@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>FinishProjectOrganizer</RootNamespace>
+    <AssemblyName>FinishProjectOrganizer</AssemblyName>
+    <ApplicationIcon>Assets\finish.ico</ApplicationIcon>
+    <Version>12.0.0</Version>
+    <Product>Finish Project Organizer</Product>
+    <Company>Finish</Company>
+    <SatelliteResourceLanguages>pt-BR</SatelliteResourceLanguages>
+    <!-- Main próprio (Program.cs): o Velopack precisa rodar antes de tudo para tratar instalação/atualização -->
+    <StartupObject>FinishProjectOrganizer.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Atualização automática (instalador + updates pelo GitHub Releases) -->
+    <PackageReference Include="Velopack" Version="0.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Fontes embutidas no .exe (colocadas em Fonts\ pelo Compilar.bat) -->
+    <Resource Include="Fonts\*.ttf" />
+    <Resource Include="Icons\*.png" />
+    <Resource Include="Assets\finish.ico" />
+  </ItemGroup>
+
+</Project>

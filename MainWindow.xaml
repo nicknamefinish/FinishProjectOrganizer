@@ -1,0 +1,651 @@
+<Window x:Class="FinishProjectOrganizer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Finish — Project Organizer"
+        Width="1040" Height="700" MinWidth="1040" MinHeight="700"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize"
+        WindowStyle="None" Background="{StaticResource BgBrush}"
+        Foreground="{StaticResource TextBrush}" FontFamily="{StaticResource UiFont}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40" ResizeBorderThickness="0" GlassFrameThickness="0"
+                      CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <!-- O Viewbox reduz o conteúdo (nunca amplia) quando a janela precisa ser menor que 1040x700 -->
+    <Viewbox Stretch="Uniform" StretchDirection="DownOnly">
+    <Border Width="1040" Height="700" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Fundo: gradiente escuro bem sutil, levemente tingido pela cor de destaque (as cores são ajustadas em MainWindow.ApplyAccent) -->
+            <Border x:Name="BgGradient" Grid.RowSpan="2" IsHitTestVisible="False">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#15211B" Offset="0"/>
+                        <GradientStop Color="#0C0C0E" Offset="0.55"/>
+                        <GradientStop Color="#050506" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- ============ Barra de título ============ -->
+            <Grid Grid.Row="0">
+                <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+                    <Border Width="10" Height="10" CornerRadius="3" Background="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                    <TextBlock Text="FINISH" FontSize="12" Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Text="  Project Organizer" FontSize="12" Foreground="{StaticResource TextDimBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource TitleButton}" Click="Minimize_Click" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Rectangle Width="11" Height="1.2" Fill="{StaticResource TextBrush}"/>
+                    </Button>
+                    <Button Style="{StaticResource CloseButton}" Click="Close_Click" WindowChrome.IsHitTestVisibleInChrome="True">
+                        <Path Data="M0,0 L10,10 M10,0 L0,10" Stroke="{StaticResource TextBrush}" StrokeThickness="1.2"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- ============ Conteúdo ============ -->
+            <Grid Grid.Row="1" x:Name="Stage" ClipToBounds="True">
+
+                <!-- == Tela inicial: boas-vindas com a foto e o nome do usuário do Windows == -->
+                <Grid x:Name="IntroView" Visibility="Collapsed">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="560">
+                        <Grid Width="180" Height="180" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform><ScaleTransform x:Name="AvatarScale" ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+                            <Ellipse Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.5"/>
+                            <Ellipse x:Name="AvatarCircle" Margin="8" Fill="{DynamicResource AccentDimBrush}"/>
+                            <TextBlock x:Name="AvatarInitials" FontWeight="Bold" FontSize="56" Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock x:Name="IntroHello" Text="Bem-vindo," Style="{StaticResource Dim}" FontSize="18" TextAlignment="Center" Margin="0,26,0,2"/>
+                        <TextBlock x:Name="IntroName" FontWeight="Bold" FontSize="44" TextAlignment="Center"
+                                   TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
+                            <TextBlock.Effect><DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="28" ShadowDepth="0" Opacity="0.35"/></TextBlock.Effect>
+                        </TextBlock>
+                        <Border x:Name="IntroLine" Height="3" Width="64" CornerRadius="2" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,16,0,16"/>
+                        <TextBlock x:Name="IntroSub" Text="Pronto para organizar seus projetos?" Style="{StaticResource Dim}" TextAlignment="Center" Margin="0,0,0,32"/>
+                        <Button x:Name="IntroButton" Content="Começar" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Center" MinWidth="180" Click="IntroStart_Click"/>
+                        <TextBlock x:Name="IntroFooter" Text="F I N I S H   ·   Project Organizer" FontSize="11" Foreground="{StaticResource TextDimBrush}" HorizontalAlignment="Center" Margin="0,34,0,0"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- == Menu inicial == -->
+                <Grid x:Name="MenuView" Visibility="Collapsed">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="640">
+
+                        <StackPanel x:Name="MenuHead" Margin="0,0,0,30">
+                            <TextBlock Text="F I N I S H" FontSize="13" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="MenuTitle" Text="Project Organizer" FontWeight="Bold" FontSize="52" HorizontalAlignment="Center" TextWrapping="NoWrap" Margin="0,2,0,0">
+                                <TextBlock.Effect><DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="28" ShadowDepth="0" Opacity="0.45"/></TextBlock.Effect>
+                            </TextBlock>
+                            <Border x:Name="MenuLine" Height="3" Width="64" CornerRadius="2" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,14,0,0"/>
+                            <TextBlock x:Name="MenuGreeting" Style="{StaticResource Dim}" FontSize="16" HorizontalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" MaxWidth="560" Margin="0,14,0,0"/>
+                        </StackPanel>
+
+                        <!-- Novo projeto (destaque) -->
+                        <Button x:Name="MenuHero" Style="{StaticResource MenuCardHero}" Height="100" Click="MenuNew_Click">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="54" Height="54" CornerRadius="15" Background="{DynamicResource AccentBrush}" Margin="0,0,18,0">
+                                    <Path Data="M12,0 V24 M0,12 H24" Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="3.2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="Novo projeto" FontSize="22" FontWeight="Bold"/>
+                                    <TextBlock Text="Escolha o programa e crie a estrutura de pastas do seu projeto." Style="{StaticResource Dim}" FontSize="13" Margin="0,3,0,0"/>
+                                </StackPanel>
+                                <Path Grid.Column="2" Data="M0,0 L9,9 L0,18" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.5"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Button>
+
+                        <!-- Atalhos -->
+                        <Grid x:Name="MenuRow">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0" Style="{StaticResource MenuCard}" Height="118" Margin="0,0,7,0" Click="Personalize_Click">
+                                <StackPanel>
+                                    <Path Data="M12,0 L14.7,9.3 L24,12 L14.7,14.7 L12,24 L9.3,14.7 L0,12 L9.3,9.3 Z" Fill="{DynamicResource AccentBrush}"
+                                          HorizontalAlignment="Left" Width="24" Height="24" Stretch="Uniform"/>
+                                    <TextBlock Text="Personalizar" FontSize="16" FontWeight="SemiBold" Margin="0,12,0,0"/>
+                                    <TextBlock Text="Nome, foto e cor" Style="{StaticResource Dim}" FontSize="12" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Grid.Column="1" Style="{StaticResource MenuCard}" Height="118" Margin="7,0,7,0" Click="MenuOpenFolder_Click">
+                                <StackPanel>
+                                    <Path Data="M0,3 H8 L10,6 H24 V21 H0 Z" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2" StrokeLineJoin="Round"
+                                          HorizontalAlignment="Left" Width="24" Height="24" Stretch="Uniform"/>
+                                    <TextBlock Text="Meus projetos" FontSize="16" FontWeight="SemiBold" Margin="0,12,0,0"/>
+                                    <TextBlock Text="Abrir no Explorer" Style="{StaticResource Dim}" FontSize="12" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Grid.Column="2" Style="{StaticResource MenuCard}" Height="118" Margin="7,0,0,0" Click="ChangeBase_Click">
+                                <StackPanel>
+                                    <Path Data="M0,6 H24 M0,12 H24 M0,18 H24 M7,3 V9 M16,9 V15 M10,15 V21" Stroke="{DynamicResource AccentBrush}" StrokeThickness="2"
+                                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" HorizontalAlignment="Left" Width="24" Height="24" Stretch="Uniform"/>
+                                    <TextBlock Text="Trocar pasta" FontSize="16" FontWeight="SemiBold" Margin="0,12,0,0"/>
+                                    <TextBlock Text="Escolher outro local" Style="{StaticResource Dim}" FontSize="12" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <!-- Rodapé -->
+                        <Grid x:Name="MenuFoot" Margin="0,24,0,0">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="PASTA DOS PROJETOS" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                <TextBlock x:Name="MenuBasePath" FontSize="12" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" MaxWidth="400" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <ToggleButton x:Name="SoundToggle" Style="{StaticResource Chip}" Content="Sons" Margin="0,0,10,0"
+                                              Checked="SoundToggle_Changed" Unchecked="SoundToggle_Changed"/>
+                                <Button Content="Sair" Style="{StaticResource GhostButton}" Click="Close_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- Foto + nome do usuário (clique para personalizar) -->
+                    <Button x:Name="ProfilePill" Style="{StaticResource PillButton}" HorizontalAlignment="Right" VerticalAlignment="Top"
+                            Margin="0,20,30,0" Click="Personalize_Click" ToolTip="Personalizar nome, foto e cor">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="40" Height="40" Margin="0,0,12,0">
+                                <Ellipse Stroke="{DynamicResource AccentBrush}" StrokeThickness="2"/>
+                                <Ellipse x:Name="PillAvatar" Margin="3" Fill="{DynamicResource AccentDimBrush}"/>
+                                <TextBlock x:Name="PillInitials" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock x:Name="PillName" FontWeight="SemiBold" FontSize="14" MaxWidth="170"
+                                           TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                                <TextBlock Text="Editar perfil" Style="{StaticResource Dim}" FontSize="11" Margin="0,1,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <!-- == Configuração inicial: onde ficam os projetos == -->
+                <Grid x:Name="WelcomeView" Visibility="Collapsed">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="600">
+                        <TextBlock Text="F I N I S H" FontSize="13" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="WelcomeTitle" Text="Project Organizer" FontWeight="Bold" FontSize="52" HorizontalAlignment="Center" TextWrapping="NoWrap" Margin="0,2,0,0">
+                            <TextBlock.Effect><DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="28" ShadowDepth="0" Opacity="0.45"/></TextBlock.Effect>
+                        </TextBlock>
+                        <Border x:Name="WelcomeLine" Height="3" Width="64" CornerRadius="2" Background="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,14,0,40"/>
+                        <TextBlock Text="Configuração inicial" Style="{StaticResource H1}" Margin="0,0,0,6"/>
+                        <TextBlock Style="{StaticResource Dim}" Margin="0,0,0,22"
+                                   Text="Primeiro, escolha em que lugar do computador ficarão seus projetos (por exemplo, Documentos ou um disco D:). Na próxima tela você dá um nome à pasta que será criada ali."/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="WelcomePathBox" Style="{StaticResource Input}"/>
+                            <Button Grid.Column="1" Content="Procurar…" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="WelcomeBrowse_Click"/>
+                        </Grid>
+                        <TextBlock x:Name="WelcomeError" Foreground="{StaticResource ErrorBrush}" FontSize="12" Margin="2,8,0,0"/>
+                        <Button Content="Continuar" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Margin="0,18,0,0" Click="WelcomeStart_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- == Nomear a pasta dos projetos == -->
+                <Grid x:Name="NameFolderView" Visibility="Collapsed">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="600">
+                        <TextBlock Text="Nomeie a pasta" Style="{StaticResource H1}" FontSize="32"/>
+                        <TextBlock Style="{StaticResource Dim}" Margin="0,8,0,22"
+                                   Text="Vamos criar uma pasta no local que você escolheu para guardar todos os seus projetos. Digite o nome que preferir; você pode usar a sugestão abaixo."/>
+
+                        <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="12" Padding="18,14" Margin="0,0,0,18">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="SUGESTÃO" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                    <TextBlock x:Name="SuggestionText" FontSize="18" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Content="Usar sugestão" Style="{StaticResource GhostButton}" Padding="14,8" Click="UseSuggestion_Click"/>
+                            </Grid>
+                        </Border>
+
+                        <TextBlock Text="Nome da pasta" Style="{StaticResource H2}" Margin="0,0,0,10"/>
+                        <TextBox x:Name="FolderNameBox" Style="{StaticResource Input}" MaxLength="120" TextChanged="FolderNameBox_TextChanged"/>
+                        <TextBlock Style="{StaticResource Dim}" FontSize="12" Margin="2,10,0,0">
+                            <Run Text="Será criada em: "/><Run x:Name="FolderPreview" Foreground="{DynamicResource AccentBrush}"/>
+                        </TextBlock>
+                        <TextBlock x:Name="NameFolderError" Foreground="{StaticResource ErrorBrush}" FontSize="12" Margin="2,8,0,0"/>
+
+                        <Grid Margin="0,22,0,0">
+                            <Button Content="Voltar" Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Click="NameFolderBack_Click"/>
+                            <Button Content="Criar pasta e continuar" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Click="NameFolderCreate_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+
+                <!-- == Início == -->
+                <Grid x:Name="HomeView" Visibility="Collapsed" Margin="40,26,40,24">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,26">
+                        <Button Style="{StaticResource GhostButton}" Padding="12,8" Click="GoHome_Click" Margin="0,0,16,0" Content="←" VerticalAlignment="Center"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Novo projeto" Style="{StaticResource H1}"/>
+                            <TextBlock Text="Escolha o programa para criar a estrutura de pastas do seu projeto." Style="{StaticResource Dim}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,8,0" CanContentScroll="False">
+                        <ItemsControl x:Name="AppsList" Margin="8,8,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                    <Button Style="{StaticResource AppCard}" Tag="{Binding Name}" Click="AppCard_Click">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid Width="52" Height="52" Margin="0,0,14,0">
+                                                <Image Source="{Binding Icon}" Visibility="{Binding IconVisibility}"
+                                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                <Border CornerRadius="12" Background="{DynamicResource AccentDimBrush}" Visibility="{Binding BadgeVisibility}">
+                                                    <TextBlock Text="{Binding Badge}" FontSize="18" Foreground="{DynamicResource AccentBrush}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </Grid>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                                                <TextBlock Text="{Binding Status}" Style="{StaticResource Dim}" FontSize="12" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Button>
+                                    <Button Style="{StaticResource CardX}" Tag="{Binding Name}" Click="RemoveApp_Click"
+                                            HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,24,0"
+                                            Visibility="{Binding RemoveVisibility}" ToolTip="Remover este programa da lista"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="0,16,0,0">
+                        <Grid>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="PASTA DOS PROJETOS" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                <TextBlock x:Name="BasePathText" FontSize="12" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" MaxWidth="500" HorizontalAlignment="Left"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Content="Alterar pasta de projetos" Style="{StaticResource GhostButton}" Click="ChangeBase_Click"/>
+                                <Button Content="+  Cadastrar programa" Style="{StaticResource PrimaryButton}" Margin="10,0,0,0" Click="AddApp_Click"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- == Personalizar: nome, foto, cor da interface e sons == -->
+                <Grid x:Name="SettingsView" Visibility="Collapsed" Margin="40,26,40,24">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource GhostButton}" Padding="12,8" Click="GoHome_Click" Margin="0,0,16,0" Content="←"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Personalizar" Style="{StaticResource H1}"/>
+                            <TextBlock Text="Tudo é salvo automaticamente e aparece na hora." Style="{StaticResource Dim}" FontSize="12" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" Margin="0,20,0,0" VerticalScrollBarVisibility="Auto" Padding="0,0,8,0" CanContentScroll="False">
+                        <StackPanel>
+
+                            <!-- Perfil -->
+                            <Border Style="{StaticResource SectionCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Grid Width="132" Height="132" Margin="0,0,28,0" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5">
+                                        <Grid.RenderTransform><ScaleTransform x:Name="SetAvatarScale" ScaleX="1" ScaleY="1"/></Grid.RenderTransform>
+                                        <Ellipse Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.5"/>
+                                        <Ellipse x:Name="SetAvatar" Margin="7" Fill="{DynamicResource AccentDimBrush}"/>
+                                        <TextBlock x:Name="SetInitials" FontWeight="Bold" FontSize="40" Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <Button Style="{StaticResource AvatarEditButton}" Click="ChoosePhoto_Click" ToolTip="Escolher outra foto"/>
+                                    </Grid>
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="PERFIL" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                        <TextBlock Text="Como você quer ser chamado?" Style="{StaticResource H2}" Margin="0,6,0,10"/>
+                                        <TextBox x:Name="NameBox" Style="{StaticResource Input}" MaxLength="40" TextChanged="NameBox_TextChanged"/>
+                                        <TextBlock x:Name="NameHint" Style="{StaticResource Dim}" FontSize="12" Margin="2,8,0,0"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                            <Button Content="Trocar foto…" Style="{StaticResource GhostButton}" Padding="16,8" Click="ChoosePhoto_Click"/>
+                                            <Button x:Name="WinPhotoButton" Content="Usar foto do Windows" Style="{StaticResource GhostButton}" Padding="16,8" Margin="10,0,0,0" Click="UseWindowsPhoto_Click"/>
+                                            <Button Content="Usar nome do Windows" Style="{StaticResource GhostButton}" Padding="16,8" Margin="10,0,0,0" Click="UseWindowsName_Click"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Cor da interface -->
+                            <Border Style="{StaticResource SectionCard}">
+                                <StackPanel>
+                                    <TextBlock Text="COR DA INTERFACE" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                    <TextBlock Text="Escolha a cor de destaque" Style="{StaticResource H2}" Margin="0,6,0,0"/>
+                                    <WrapPanel x:Name="SwatchPanel" Margin="0,16,0,2"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <Ellipse x:Name="HexPreview" Width="28" Height="28" Margin="0,0,12,0" Fill="{DynamicResource AccentBrush}"/>
+                                        <TextBox x:Name="HexBox" Style="{StaticResource Input}" Padding="12,8" Width="140" MaxLength="7"
+                                                 TextChanged="HexBox_TextChanged" KeyDown="HexBox_KeyDown"/>
+                                        <Button Content="Aplicar" Style="{StaticResource GhostButton}" Padding="16,8" Margin="10,0,0,0" Click="ApplyHex_Click"/>
+                                        <TextBlock Text="Ou digite uma cor personalizada (#RRGGBB)" Style="{StaticResource Dim}" FontSize="12"
+                                                   VerticalAlignment="Center" Margin="14,0,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Sons -->
+                            <Border Style="{StaticResource SectionCard}">
+                                <StackPanel>
+                                    <TextBlock Text="SONS" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                    <TextBlock Text="Efeitos sonoros" Style="{StaticResource H2}" Margin="0,6,0,0"/>
+                                    <TextBlock Text="Por padrão eles ficam baixinhos. Aumente se preferir." Style="{StaticResource Dim}" FontSize="12" Margin="0,4,0,14"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ToggleButton x:Name="SoundToggle2" Style="{StaticResource Chip}" Content="Sons ligados" Margin="0,0,22,0"
+                                                      Checked="SoundToggle_Changed" Unchecked="SoundToggle_Changed"/>
+                                        <TextBlock Text="Volume" Style="{StaticResource Dim}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                        <RadioButton x:Name="VolLow" Style="{StaticResource ChipRadio}" GroupName="vol" Content="Baixo" Tag="0.35" Checked="Volume_Checked"/>
+                                        <RadioButton x:Name="VolMid" Style="{StaticResource ChipRadio}" GroupName="vol" Content="Médio" Tag="0.65" Checked="Volume_Checked"/>
+                                        <RadioButton x:Name="VolHigh" Style="{StaticResource ChipRadio}" GroupName="vol" Content="Alto" Tag="1" Checked="Volume_Checked"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Atualizações -->
+                            <Border Style="{StaticResource SectionCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="ATUALIZAÇÕES" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                        <TextBlock x:Name="VersionText" Style="{StaticResource H2}" Margin="0,6,0,0"/>
+                                        <TextBlock x:Name="UpdateStatus" Style="{StaticResource Dim}" FontSize="12" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button x:Name="UpdateCheckButton" Content="Verificar agora" Style="{StaticResource GhostButton}" Padding="16,8" Click="UpdateCheck_Click"/>
+                                        <Button x:Name="UpdateApplyButton" Content="Atualizar e reiniciar" Style="{StaticResource PrimaryButton}" Padding="18,9"
+                                                Margin="10,0,0,0" Visibility="Collapsed" Click="UpdateApply_Click"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- == Assistente == -->
+                <Grid x:Name="WizardView" Visibility="Collapsed" Margin="48,22,48,24">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Cabeçalho -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                        <Button Style="{StaticResource GhostButton}" Padding="12,8" Click="WizardCancel_Click" Margin="0,0,16,0" Content="←"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="WizardTitle" Style="{StaticResource H1}" FontSize="22"/>
+                            <TextBlock x:Name="WizardSubtitle" Style="{StaticResource Dim}" FontSize="12"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Indicador de passos -->
+                    <Grid Grid.Row="1" Margin="0,0,0,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="StepLbl1" FontWeight="SemiBold" Text="1  ·  Cliente" FontSize="13" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="StepLbl2" FontWeight="SemiBold" Grid.Column="1" Text="2  ·  Projeto" FontSize="13" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="StepLbl3" FontWeight="SemiBold" Grid.Column="2" Text="3  ·  Subpastas" FontSize="13" Margin="0,0,0,8"/>
+                        <Border Grid.Row="1" Grid.ColumnSpan="3" Height="3" CornerRadius="2" Background="{StaticResource BorderBrushSoft}"/>
+                        <Border Grid.Row="1" Grid.ColumnSpan="3" Height="3" CornerRadius="2" Background="{DynamicResource AccentBrush}"
+                                RenderTransformOrigin="0,0.5">
+                            <Border.RenderTransform><ScaleTransform x:Name="StepProgress" ScaleX="0.33"/></Border.RenderTransform>
+                        </Border>
+                    </Grid>
+
+                    <!-- Conteúdo dos passos -->
+                    <Grid Grid.Row="2">
+                        <!-- Passo 2: projeto -->
+                        <ScrollViewer x:Name="StepProject" VerticalScrollBarVisibility="Auto" Padding="0,0,10,0" Visibility="Collapsed">
+                            <StackPanel MaxWidth="680" HorizontalAlignment="Left">
+                                <TextBlock Text="Nome do projeto" Style="{StaticResource H2}" Margin="0,0,0,10"/>
+                                <TextBox x:Name="ProjectNameBox" Style="{StaticResource Input}" MaxLength="120"/>
+                                <TextBlock Text="Esse será o nome da pasta principal do projeto." Style="{StaticResource Dim}" FontSize="12" Margin="2,8,0,4"/>
+                                <TextBlock x:Name="BlankHint" Text="Dica: deixe em branco para criar apenas a pasta do cliente (sem nenhum projeto dentro)." Style="{StaticResource Dim}" FontSize="12" Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" Margin="2,0,0,0" Visibility="Collapsed"/>
+                                <TextBlock x:Name="ProjectContext" Style="{StaticResource Dim}" FontSize="12" TextWrapping="Wrap" Margin="2,26,0,0"/>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Passo 1: pasta central (cliente) -->
+                        <ScrollViewer x:Name="StepClient" VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
+                            <StackPanel MaxWidth="680" HorizontalAlignment="Left">
+                                <TextBlock Text="Qual é a pasta central do projeto?" Style="{StaticResource H2}" Margin="0,0,0,4"/>
+                                <TextBlock Text="A pasta central é o cliente ou empresa: ela agrupa vários projetos." Style="{StaticResource Dim}" FontSize="12" Margin="0,0,0,14"/>
+
+                                <RadioButton x:Name="OrgNew" Style="{StaticResource ChoiceCard}" GroupName="org" IsChecked="True" Checked="Org_Changed">
+                                    <StackPanel>
+                                        <TextBlock Text="Novo cliente ou empresa"/>
+                                        <TextBlock x:Name="OrgNewDesc" Text="Cria a pasta central do cliente; o projeto vai dentro dela." Style="{StaticResource Dim}" FontSize="12" Margin="0,3,0,0"/>
+                                        <TextBlock x:Name="OrgExample3" Style="{StaticResource Dim}" FontSize="11" Foreground="{DynamicResource AccentBrush}" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <StackPanel x:Name="NewClientPanel" Visibility="Collapsed" Margin="0,-2,0,14">
+                                    <TextBox x:Name="ClientNameBox" Style="{StaticResource Input}" Padding="12,9" MaxLength="120" TextChanged="ClientNameBox_TextChanged"/>
+                                    <TextBlock Text="Nome do cliente ou empresa." Style="{StaticResource Dim}" FontSize="11" Margin="2,6,0,0"/>
+                                </StackPanel>
+                                <RadioButton x:Name="OrgExisting" Style="{StaticResource ChoiceCard}" GroupName="org" Checked="Org_Changed">
+                                    <StackPanel>
+                                        <TextBlock Text="Dentro de um cliente que já existe"/>
+                                        <TextBlock x:Name="OrgExistingDesc" Text="O projeto entra como uma nova pasta dentro do cliente escolhido." Style="{StaticResource Dim}" FontSize="12" Margin="0,3,0,0"/>
+                                        <TextBlock x:Name="OrgExample2" Style="{StaticResource Dim}" FontSize="11" Foreground="{DynamicResource AccentBrush}" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </RadioButton>
+                                <!-- Fora do RadioButton para que a lista funcione normalmente -->
+                                <Border x:Name="ExistingPanel" Visibility="Collapsed" Margin="0,-2,0,14" Padding="10"
+                                        Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="12">
+                                    <ListBox x:Name="ExistingList" ItemContainerStyle="{StaticResource FolderItem}"
+                                             Background="Transparent" BorderThickness="0" MaxHeight="170"
+                                             SelectionChanged="ExistingList_SelectionChanged"/>
+                                </Border>
+
+                                <RadioButton x:Name="OrgIndependent" Style="{StaticResource ChoiceCard}" GroupName="org" Checked="Org_Changed">
+                                    <StackPanel>
+                                        <TextBlock Text="Projeto avulso (sem cliente)"/>
+                                        <TextBlock Text="A pasta do projeto fica direto na pasta do programa." Style="{StaticResource Dim}" FontSize="12" Margin="0,3,0,0"/>
+                                        <TextBlock x:Name="OrgExample1" Style="{StaticResource Dim}" FontSize="11" Foreground="{DynamicResource AccentBrush}" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </RadioButton>
+
+                                <StackPanel Margin="0,24,0,0">
+                                <StackPanel x:Name="FirstSetupPanel">
+                                    <TextBlock Text="Primeiro projeto deste programa" Style="{StaticResource H2}" Margin="0,0,0,4"/>
+                                    <TextBlock x:Name="FirstSetupText" Style="{StaticResource Dim}" Margin="0,0,0,14"/>
+                                    <RadioButton x:Name="AppDirDefault" Style="{StaticResource ChoiceCard}" GroupName="appdir" IsChecked="True" Checked="AppDir_Changed">
+                                        <StackPanel>
+                                            <TextBlock Text="Criar no diretório padrão"/>
+                                            <TextBlock x:Name="AppDirDefaultPath" Style="{StaticResource Dim}" FontSize="12" Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </RadioButton>
+                                    <RadioButton x:Name="AppDirCustom" Style="{StaticResource ChoiceCard}" GroupName="appdir" Checked="AppDir_Changed">
+                                        <StackPanel>
+                                            <TextBlock Text="Escolher outro local"/>
+                                            <TextBlock x:Name="AppDirCustomPath" Style="{StaticResource Dim}" FontSize="12" Margin="0,3,0,0" Text="Nenhum local escolhido ainda."/>
+                                            <Button x:Name="AppDirBrowse" Content="Procurar pasta…" Style="{StaticResource GhostButton}" Padding="14,7" HorizontalAlignment="Left" Margin="0,10,0,0" Click="AppDirBrowse_Click" Visibility="Collapsed"/>
+                                        </StackPanel>
+                                    </RadioButton>
+                                </StackPanel>
+
+                                <Border x:Name="ReuseInfo" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="12" Padding="18,14">
+                                    <StackPanel>
+                                        <TextBlock Text="Pasta do programa"/>
+                                        <TextBlock x:Name="ReusePath" Style="{StaticResource Dim}" FontSize="12" Margin="0,3,0,0"/>
+                                        <TextBlock Text="Esse local é reutilizado automaticamente." Style="{StaticResource Dim}" FontSize="12" Margin="0,3,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Passo 3 -->
+                        <Grid x:Name="Step3" Visibility="Collapsed">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="330"/>
+                            </Grid.ColumnDefinitions>
+
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
+                                <StackPanel>
+                                    <TextBlock Text="Sugestões para este programa" Style="{StaticResource H2}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Clique para marcar ou desmarcar. O projeto também pode ser criado vazio." Style="{StaticResource Dim}" FontSize="12" Margin="0,0,0,14"/>
+                                    <WrapPanel x:Name="ChipsPanel"/>
+
+                                    <TextBlock Text="Pasta personalizada" Style="{StaticResource H2}" Margin="0,14,0,10"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="CustomFolderBox" Style="{StaticResource Input}" KeyDown="CustomFolderBox_KeyDown"/>
+                                        <Button Grid.Column="1" Content="Adicionar" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="AddCustomFolder_Click"/>
+                                    </Grid>
+                                    <TextBlock Text="Dica: use barra invertida para subpastas, como Assets\Imagens." Style="{StaticResource Dim}" FontSize="11" Margin="2,8,0,0"/>
+                                </StackPanel>
+                            </ScrollViewer>
+
+                            <Border Grid.Column="2" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="14" Padding="20,18">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="RESUMO" FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
+                                    <TextBlock x:Name="SummaryTarget" Grid.Row="1" FontSize="12" Foreground="{DynamicResource AccentBrush}" Margin="0,6,0,12"/>
+                                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                                        <TextBlock x:Name="SummaryTree" FontFamily="Consolas" FontSize="12" TextWrapping="NoWrap"/>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <TextBlock x:Name="WizardError" Grid.Row="3" Foreground="{StaticResource ErrorBrush}" FontSize="12.5" Margin="0,10,0,0"/>
+
+                    <Grid Grid.Row="4" Margin="0,14,0,0">
+                        <Button x:Name="BackButton" Content="Voltar" Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Click="Back_Click"/>
+                        <Button x:Name="NextButton" Content="Avançar" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Click="Next_Click"/>
+                    </Grid>
+                </Grid>
+
+                <!-- == Sucesso == -->
+                <Grid x:Name="SuccessView" Visibility="Collapsed">
+                    <Grid.RenderTransform><TranslateTransform/></Grid.RenderTransform>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="560">
+                        <Grid Width="96" Height="96" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform><ScaleTransform x:Name="CheckScale" ScaleX="0" ScaleY="0"/></Grid.RenderTransform>
+                            <Ellipse Fill="{DynamicResource AccentDimBrush}"/>
+                            <Ellipse Stroke="{DynamicResource AccentBrush}" StrokeThickness="2.5"/>
+                            <Path Data="M28,50 L43,65 L70,34" Stroke="{DynamicResource AccentBrush}" StrokeThickness="5"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                        </Grid>
+                        <TextBlock x:Name="SuccessTitle" Text="Projeto criado!" Style="{StaticResource H1}" HorizontalAlignment="Center" Margin="0,24,0,6"/>
+                        <TextBlock x:Name="SuccessPath" Style="{StaticResource Dim}" TextAlignment="Center" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="SuccessCount" Style="{StaticResource Dim}" TextAlignment="Center" FontSize="12" Margin="0,0,0,30"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="Abrir pasta" Style="{StaticResource PrimaryButton}" Click="OpenFolder_Click"/>
+                            <Button Content="Criar outro" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="CreateAnother_Click"/>
+                            <Button Content="Início" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="GoHome_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <!-- == Aviso rápido (toast) == -->
+                <Border x:Name="Toast" Visibility="Collapsed" IsHitTestVisible="False" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                        Margin="0,0,0,26" Padding="18,10" CornerRadius="22" Background="{StaticResource Surface2Brush}"
+                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
+                    <Border.RenderTransform><TranslateTransform/></Border.RenderTransform>
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Fill="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock x:Name="ToastText" FontSize="13" TextWrapping="NoWrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- == Janela: cadastrar programa == -->
+                <Grid x:Name="AddAppOverlay" Visibility="Collapsed" Background="#B3000000">
+                    <Border Width="440" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1"
+                            CornerRadius="16" Padding="26" VerticalAlignment="Center" HorizontalAlignment="Center"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform><ScaleTransform x:Name="OverlayScale" ScaleX="0.94" ScaleY="0.94"/></Border.RenderTransform>
+                        <StackPanel>
+                            <TextBlock Text="Cadastrar programa" Style="{StaticResource H1}" FontSize="20"/>
+                            <TextBlock Text="Adicione outro software à lista inicial (ex.: Cinema 4D, Figma)." Style="{StaticResource Dim}" FontSize="12" Margin="0,4,0,18"/>
+                            <TextBox x:Name="NewAppBox" Style="{StaticResource Input}" KeyDown="NewAppBox_KeyDown"/>
+                            <TextBlock x:Name="AddAppError" Foreground="{StaticResource ErrorBrush}" FontSize="12" Margin="2,8,0,0"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+                                <Button Content="Cancelar" Style="{StaticResource GhostButton}" Click="AddAppCancel_Click"/>
+                                <Button Content="Cadastrar" Style="{StaticResource PrimaryButton}" Margin="10,0,0,0" Click="AddAppConfirm_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+            </Grid>
+        </Grid>
+    </Border>
+    </Viewbox>
+</Window>

@@ -1,0 +1,49 @@
+COMO COLOCAR O FINISH ONLINE (estilo "Fortnite Porting")
+=========================================================
+No fim você terá:
+  - uma pagina de download (https://SEU-USUARIO.github.io/FinishProjectOrganizer);
+  - um botao "Baixar para Windows" que sempre entrega a versao mais nova;
+  - atualizacao automatica dentro do programa (aviso + botao em Menu > Personalizar > Atualizacoes).
+Tudo gratis, usando o GitHub.
+
+PASSO 1 - Conta e repositorio (so uma vez)
+  1. Crie uma conta em github.com.
+  2. Clique em "New repository". Nome sugerido: FinishProjectOrganizer. Deixe como PUBLIC
+     (repositorio publico e necessario para o download e o atualizador funcionarem sem senha).
+  3. Envie o conteudo desta pasta para o repositorio ("uploading an existing file" serve; ou use o GitHub Desktop).
+     A pasta .github (com o publicador automatico) e a pasta docs (a pagina) precisam ir junto.
+
+PASSO 2 - Trocar o endereco (so uma vez)
+  Troque "SEU-USUARIO" pelo seu usuario do GitHub em DOIS lugares:
+    a) Services.cs   -> const RepoUrl  = "https://github.com/SEU-USUARIO/FinishProjectOrganizer";
+    b) docs/index.html -> const REPO = "SEU-USUARIO/FinishProjectOrganizer";
+  (se o repositorio tiver outro nome, troque tambem o nome)
+
+PASSO 3 - Ligar a pagina de download (so uma vez)
+  No repositorio: Settings > Pages > "Deploy from a branch" > Branch: main, pasta: /docs > Save.
+  Em ~1 minuto a pagina fica em https://SEU-USUARIO.github.io/NOME-DO-REPOSITORIO.
+
+PASSO 4 - Publicar uma versao
+  1. Aumente o numero em FinishProjectOrganizer.csproj (ex.: 12.0.0 -> 12.0.1) e envie para o GitHub.
+  2. No GitHub: Releases > "Draft a new release" > crie a TAG com o mesmo numero com "v" na frente
+     (ex.: v12.0.1) > "Publish release".
+     (ou, pelo terminal: git tag v12.0.1 && git push origin v12.0.1)
+  3. O GitHub compila sozinho (aba Actions, ~5 minutos) e anexa o instalador na Release.
+  A partir dai:
+    - quem baixar pela pagina recebe a versao nova;
+    - quem ja usa o programa ve o aviso "Nova versao disponivel" e atualiza com um clique.
+
+SEM O ENVIO AUTOMATICO (alternativa manual)
+  Rode o Publicar.bat. Ele cria a pasta Releases com o instalador e os pacotes de atualizacao.
+  Crie a Release no GitHub (tag vX.Y.Z) e arraste TODOS os arquivos da pasta Releases para ela.
+
+OBSERVACOES
+  - A atualizacao automatica so funciona no programa INSTALADO pelo Setup (FinishOrganizer-win-Setup.exe).
+    Rodando pelo Visual Studio ou direto da pasta dist, o cartao "Atualizacoes" avisa que nao esta disponivel.
+  - Suas configuracoes (nome, foto, cor, pastas) ficam em %LOCALAPPDATA%\FinishProjectOrganizer e NAO sao
+    apagadas ao atualizar nem ao desinstalar.
+  - Quem ja instalou pelo instalador antigo (Inno Setup / Compilar.bat) precisa instalar o novo Setup uma vez;
+    depois disso as atualizacoes sao automaticas. Pode desinstalar a versao antiga antes.
+  - O Windows (SmartScreen) pode mostrar "editor desconhecido" ate o programa ganhar reputacao ou ser assinado
+    digitalmente (certificado pago, opcional). A pagina de download ja explica como seguir.
+  - Os numeros de versao devem sempre aumentar (12.0.1, 12.0.2, 12.1.0...).
