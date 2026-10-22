@@ -1,0 +1,51 @@
+# Publica uma versão nova sozinho: basta criar uma tag "v12.0.1" (veja ONLINE.txt).
+name: Publicar versao
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Numero da versao (vem da tag)
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}".TrimStart('v')
+          "VER=$v" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Baixar a fonte Outfit
+        shell: pwsh
+        continue-on-error: true
+        run: ./BaixarFonte.ps1
+
+      - name: Compilar
+        shell: pwsh
+        run: dotnet publish FinishProjectOrganizer.csproj -c Release -r win-x64 --self-contained true -p:Version=$env:VER -o publish
+
+      - name: Instalar o vpk
+        shell: pwsh
+        run: dotnet tool install -g vpk
+
+      - name: Baixar versao anterior (para gerar atualizacoes menores)
+        shell: pwsh
+        continue-on-error: true
+        run: vpk download github --repoUrl "${{ github.server_url }}/${{ github.repository }}" --token "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Empacotar
+        shell: pwsh
+        run: vpk pack --packId FinishOrganizer --packVersion $env:VER --packDir publish --mainExe FinishProjectOrganizer.exe --icon Assets/finish.ico --packTitle "Finish Project Organizer" --packAuthors Finish
+
+      - name: Publicar no GitHub Releases
+        shell: pwsh
+        run: vpk upload github --repoUrl "${{ github.server_url }}/${{ github.repository }}" --publish --releaseName "Finish $env:VER" --tag "${{ github.ref_name }}" --token "${{ secrets.GITHUB_TOKEN }}"
