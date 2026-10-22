@@ -469,9 +469,9 @@ public static class AppInfo
 {
     /// <summary>TROQUE pelo endereço do seu repositório no GitHub (veja ONLINE.txt).
     /// Enquanto estiver com "SEU-USUARIO", a atualização automática fica desligada.</summary>
-    public const string RepoUrl = "https://github.com/SEU-USUARIO/FinishProjectOrganizer";
+    public const string RepoUrl = "https://github.com/nicknamefinish/FinishProjectOrganizer";
 
-    public static bool UpdatesConfigured => !RepoUrl.Contains("SEU-USUARIO", StringComparison.OrdinalIgnoreCase);
+    public static bool UpdatesConfigured => !RepoUrl.Contains("nicknamefinish", StringComparison.OrdinalIgnoreCase);
 
     public static string Version
     {
